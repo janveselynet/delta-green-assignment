@@ -4,7 +4,7 @@ import { getMqttClient } from './services/mqttClient';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { parseGear } from './services/parseGear';
-import { computeWeightedSoc } from './services/computeWeightedStateOfCharge';
+import { computeWeightedStateOfCharge } from './services/computeWeightedStateOfCharge';
 import { convertSpeedFromMsToKmh } from './services/convertSpeedFromMsToKmh';
 
 const argv = yargs(hideBin(process.argv))
@@ -99,7 +99,7 @@ async function main() {
         queue.publish({
             carId: CAR_ID,
             time: new Date().toISOString(),
-            stateOfCharge: computeWeightedSoc(carDataBuffer.batteries),
+            stateOfCharge: computeWeightedStateOfCharge(carDataBuffer.batteries),
             latitude: carDataBuffer.latitude.value,
             longitude: carDataBuffer.longitude.value,
             gear: carDataBuffer.gear ? carDataBuffer.gear.value : 0,

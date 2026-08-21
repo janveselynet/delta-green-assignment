@@ -14,6 +14,48 @@ This solution processes IoT telemetry data from MQTT, aggregates it into time-ba
 * Decoupled MQTT Parser: Extract topic-parsing and payload-normalization logic from collector.ts into a pure function and add comprehensive unit tests for various payload edge cases.
 * Graceful Shutdown: Add proper process termination hooks (SIGINT/SIGTERM) to close MQTT, RabbitMQ, and Postgres connections gracefully.
 
+## How to Run
+
+### 1. Prerequisites
+Start the infrastructure services (RabbitMQ, PostgreSQL, MQTT Broker) via Docker:
+
+```bash
+docker compose up -d
+```
+
+### Running Services
+Collector: Collects telemetry from MQTT and publishes snapshots to RabbitMQ.
+
+```bash
+# Default setup (carId=1, tickIntervalMs=5000, maxDataAgeMs=15000)
+npm run collector
+
+# Custom parameters
+npm run collector -- --carId 2 --tickIntervalMs 2000
+```
+
+Writer: Consumes snapshots from RabbitMQ and saves them to PostgreSQL.
+
+```bash
+npm run writer
+```
+
+### Testing & Code Quality
+
+Unit Tests (Jest):
+
+```bash
+npm test           # Run once
+npm run test:watch # Watch mode
+```
+
+Linter (ESLint):
+
+```bash
+npm run lint       # Check rules
+npm run lint:fix   # Auto-fix issues
+```
+
 # Assignment
 
 ## Overview

@@ -47,38 +47,42 @@ async function main() {
     const mqttClient = await getMqttClient(`car/${CAR_ID}/#`);
 
     mqttClient.subscribe((topic, message) => {
-        const payload = JSON.parse(message);
-        const now = Date.now();
-        const parts = topic.split('/');
+        try {
+            const payload = JSON.parse(message);
+            const now = Date.now();
+            const parts = topic.split('/');
 
-        if (topic.endsWith('/location/latitude')) {
-            carDataBuffer.latitude = { value: parseFloat(payload.value), updatedAt: now };
-        }
-        else if (topic.endsWith('/location/longitude')) {
-            carDataBuffer.longitude = { value: parseFloat(payload.value), updatedAt: now };
-        }
-        else if (topic.endsWith('/speed')) {
-            carDataBuffer.speed = { value: parseFloat(payload.value), updatedAt: now };
-        }
-        else if (topic.endsWith('/gear')) {
-            carDataBuffer.gear = { value: parseGear(payload.value), updatedAt: now };
-        }
-        else if (topic.includes('/battery/') && topic.endsWith('/soc')) {
-            const bIndex = parseInt(parts[3], 10);
-            carDataBuffer.batteries[bIndex] = {
-                ...carDataBuffer.batteries[bIndex],
-                stateOfCharge: parseFloat(payload.value),
-                capacity: carDataBuffer.batteries[bIndex]?.capacity || BATTERY_CAPACITIES[bIndex] || 0,
-                updatedAt: now,
-            };
-        }
-        else if (topic.includes('/battery/') && topic.endsWith('/capacity')) {
-            const bIndex = parseInt(parts[3], 10);
-            const cap = parseFloat(payload.value);
-            BATTERY_CAPACITIES[bIndex] = cap;
-            if (carDataBuffer.batteries[bIndex]) {
-                carDataBuffer.batteries[bIndex].capacity = cap;
+            if (topic.endsWith('/location/latitude')) {
+                carDataBuffer.latitude = { value: parseFloat(payload.value), updatedAt: now };
             }
+            else if (topic.endsWith('/location/longitude')) {
+                carDataBuffer.longitude = { value: parseFloat(payload.value), updatedAt: now };
+            }
+            else if (topic.endsWith('/speed')) {
+                carDataBuffer.speed = { value: parseFloat(payload.value), updatedAt: now };
+            }
+            else if (topic.endsWith('/gear')) {
+                carDataBuffer.gear = { value: parseGear(payload.value), updatedAt: now };
+            }
+            else if (topic.includes('/battery/') && topic.endsWith('/soc')) {
+                const bIndex = parseInt(parts[3], 10);
+                carDataBuffer.batteries[bIndex] = {
+                    ...carDataBuffer.batteries[bIndex],
+                    stateOfCharge: parseFloat(payload.value),
+                    capacity: carDataBuffer.batteries[bIndex]?.capacity || BATTERY_CAPACITIES[bIndex] || 0,
+                    updatedAt: now,
+                };
+            }
+            else if (topic.includes('/battery/') && topic.endsWith('/capacity')) {
+                const bIndex = parseInt(parts[3], 10);
+                const cap = parseFloat(payload.value);
+                BATTERY_CAPACITIES[bIndex] = cap;
+                if (carDataBuffer.batteries[bIndex]) {
+                    carDataBuffer.batteries[bIndex].capacity = cap;
+                }
+            }
+        } catch (error) {
+            console.error(`⚠️ Failed to parse MQTT payload on topic "${topic}":`, error);
         }
     });
 

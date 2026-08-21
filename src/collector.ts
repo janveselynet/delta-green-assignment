@@ -68,7 +68,7 @@ async function main() {
             carDataBuffer.batteries[bIndex] = {
                 ...carDataBuffer.batteries[bIndex],
                 stateOfCharge: parseFloat(payload.value),
-                capacity: carDataBuffer.batteries[bIndex]?.capacity || BATTERY_CAPACITIES[bIndex] || 1,
+                capacity: carDataBuffer.batteries[bIndex]?.capacity || BATTERY_CAPACITIES[bIndex] || 0,
                 updatedAt: now,
             };
         }

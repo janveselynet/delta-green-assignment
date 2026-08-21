@@ -1,5 +1,21 @@
 # Backend home assignment for Delta Green
 
+## Solution overview
+
+This solution processes IoT telemetry data from MQTT, aggregates it into time-based snapshots, and reliably persists it to PostgreSQL via RabbitMQ.
+
+### Highlights
+* Modular Services: Database, Queue, and MQTT client logic are isolated into separate helper modules (database.ts, queue.ts, mqttClient.ts) to maintain clean separation of concerns and keep core logic readable.
+* Collector & Writer Services: The collector buffers incoming MQTT topics, validates data freshness (maxDataAgeMs), computes snapshot metrics, and publishes frames to RabbitMQ. The writer consumes these messages and safely persists them to PostgreSQL using explicit acknowledgments (prefetch(1) and ack).
+* Unit Testing (Jest): Automated tests cover core domain logic, such as computeWeightedStateOfCharge, ensuring mathematical edge cases and empty data states are handled correctly.
+* CLI Options: Configurable runtime options (e.g., --carId, --tickIntervalMs) are handled via yargs with sensible defaults.
+
+### Future Improvements
+* Decoupled MQTT Parser: Extract topic-parsing and payload-normalization logic from collector.ts into a pure function and add comprehensive unit tests for various payload edge cases.
+* Graceful Shutdown: Add proper process termination hooks (SIGINT/SIGTERM) to close MQTT, RabbitMQ, and Postgres connections gracefully.
+
+# Assignment
+
 ## Overview
 
 In this home assignment you are required to create a data pipeline which collects data from electric cars and inputs them into the database.
